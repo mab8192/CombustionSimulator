@@ -32,7 +32,7 @@ void Engine::CalculateGeometry()
     float halfWidth = 0.2f; // Smaller values to fit in screen
 
     float scale = 0.1f;
-    float nozzleHalfWidth = m_Config->nozzleDiameter * scale;
+    float nozzleHalfWidth = m_Config->nozzleDiameter * scale / 2.0f;
     float chamberLength = m_Config->chamberLength * scale;
     float throatHalfWidth = m_Config->throatDiameter * scale / 2.0f;
 
