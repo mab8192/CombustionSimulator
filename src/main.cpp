@@ -1,65 +1,45 @@
-#include <iostream>
+#include "render/renderer.h"
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <imgui.h>
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_opengl3.h>
-#include "config.h"
-#include "engine.h"
-#include "ui.h"
+#include <memory>
 
-int main() {
-    // Initialize GLFW
-    if (!glfwInit()) return -1;
+int main()
+{
+    Renderer renderer;
+    renderer.Init(1600, 900, "Rocket Simulation");
 
-    // Create window
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "Rocket Engine Simulation", nullptr, nullptr);
-    if (!window) {
-        glfwTerminate();
-        return -1;
-    }
-    glfwMakeContextCurrent(window);
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        std::cerr << "Failed to initialize GLAD" << std::endl;
-        return -1;
-    }
+    std::shared_ptr<EngineConfiguration> config = std::make_shared<EngineConfiguration>(
+        0.5f, // throat diameter
+        1.0f, // nozzle diameter
+        1.0f, // nozzle length
+        0.0f, // nozzle curve
+        2.0f, // chamber volume
+        2.0f, // chamber length
+        PropellantType::METHALOX);
 
-    // Initialize ImGui
-    ImGui::CreateContext();
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 450");
+    Engine engine(config);
+    engine.CalculateGeometry();
 
-    // Application objects
-    Configuration config;
-    Engine simulation;
-
-    // Main loop
-    while (!glfwWindowShouldClose(window)) {
+    while (!renderer.ShouldClose())
+    {
         glfwPollEvents();
 
-        // Start ImGui frame
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
+        engine.CalculateGeometry();
 
-        // Update UI and simulation
-        drawUI(config, simulation);
-        simulation.update(config);
+        renderer.BeginRender();
+        renderer.DrawEngine(engine);
 
-        // Render
-        glClearColor(0.45f, 0.55f, 0.65f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        glfwSwapBuffers(window);
+        // ImGui UI
+        ImGui::Begin("Engine Configuration");
+        ImGui::SliderFloat("Throat Diameter", &engine.GetConfiguration()->throatDiameter, 0.1f, 4.0f);
+        ImGui::SliderFloat("Nozzle Diameter", &engine.GetConfiguration()->nozzleDiameter, 0.1f, 4.0f);
+        ImGui::SliderFloat("Chamber Volume", &engine.GetConfiguration()->chamberVolume, 0.1f, 4.0f);
+        ImGui::SliderFloat("Chamber Length", &engine.GetConfiguration()->chamberLength, 0.1f, 4.0f);
+        ImGui::End();
+
+        renderer.DrawImGui();
+
+        glfwSwapBuffers(renderer.GetWindow());
     }
 
-    // Cleanup
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-    glfwDestroyWindow(window);
-    glfwTerminate();
-    return 0;
+    renderer.Shutdown();
 }
