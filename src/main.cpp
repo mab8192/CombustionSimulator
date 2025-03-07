@@ -1,11 +1,12 @@
-#include "render/renderer.h"
+#include "render/window.h"
 
+#include <iostream>
 #include <memory>
 
 int main()
 {
-    Renderer renderer;
-    renderer.Init(1600, 900, "Rocket Simulation");
+    Window window;
+    window.Init(1600, 900, "Rocket Simulation");
 
     std::shared_ptr<EngineConfiguration> config = std::make_shared<EngineConfiguration>(
         0.5f, // throat diameter
@@ -16,30 +17,16 @@ int main()
         2.0f, // chamber length
         PropellantType::METHALOX);
 
-    Engine engine(config);
-    engine.CalculateGeometry();
+    std::shared_ptr<Engine> engine = std::make_shared<Engine>(config);
+    window.SetEngine(engine);
 
-    while (!renderer.ShouldClose())
+    while (!window.ShouldClose())
     {
-        glfwPollEvents();
+        // TODO Update simulation
 
-        engine.CalculateGeometry();
-
-        renderer.BeginRender();
-        renderer.DrawEngine(engine);
-
-        // ImGui UI
-        ImGui::Begin("Engine Configuration");
-        ImGui::SliderFloat("Throat Diameter", &engine.GetConfiguration()->throatDiameter, 0.1f, 4.0f);
-        ImGui::SliderFloat("Nozzle Diameter", &engine.GetConfiguration()->nozzleDiameter, 0.1f, 4.0f);
-        ImGui::SliderFloat("Chamber Volume", &engine.GetConfiguration()->chamberVolume, 0.1f, 4.0f);
-        ImGui::SliderFloat("Chamber Length", &engine.GetConfiguration()->chamberLength, 0.1f, 4.0f);
-        ImGui::End();
-
-        renderer.DrawImGui();
-
-        glfwSwapBuffers(renderer.GetWindow());
+        window.Draw();
     }
 
-    renderer.Shutdown();
+    std::cout << "Closing!" << std::endl;
+    window.Close();
 }
