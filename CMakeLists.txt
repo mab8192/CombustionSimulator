@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.24)
 project(RES)
 
 # C++ minimum version  required
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 # Let the language server know stuff about the project and libraries
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -11,9 +11,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(FetchContent)
 
 # Glob finds all files in a directory, src/ in this case, and assign to the SRC_FILES variable
-file(GLOB_RECURSE SRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
+file(GLOB_RECURSE SRC_FILES ${PROJECT_SOURCE_DIR}/src/**.cpp)
+file(GLOB_RECURSE HDR_FILES ${PROJECT_SOURCE_DIR}/src/**.h ${PROJECT_SOURCE_DIR}/src/**.hpp)
 # Creates the executable with the source files
-add_executable(${PROJECT_NAME} ${SRC_FILES})
+add_executable(${PROJECT_NAME} ${SRC_FILES} ${HDR_FILES})
 
 # ===============
 # ==== IMGUI ====

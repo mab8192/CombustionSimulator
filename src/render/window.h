@@ -3,7 +3,7 @@
 #include <memory>
 #include <string>
 
-#include "../engine.h"
+#include "../simulation/engine.h"
 
 class Window
 {
@@ -14,7 +14,8 @@ public:
     void Init(int width, int height, const std::string &title);
     void Close();
     void SetEngine(std::shared_ptr<Engine> engine);
-    void Draw();
+    void DrawEngineCrossSection() const;
+    void Draw() const;
 
     bool ShouldClose() const;
 
